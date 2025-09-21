@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WorkHub - Find & Hire Freelancers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .active-nav {
+            color: #3b82f6; /* blue-500 */
+            font-weight: 600;
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .spinner {
+            border: 2px solid rgba(0,0,0,.1);
+            border-left-color: #3b82f6;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <!-- SVG Icons for use in the app -->
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="icon-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></symbol>
+        <symbol id="icon-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></symbol>
+        <symbol id="icon-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></symbol>
+        <symbol id="icon-message" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></symbol>
+        <symbol id="icon-dashboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></symbol>
+        <symbol id="icon-star" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"></path></symbol>
+        <symbol id="icon-location" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></symbol>
+        <symbol id="icon-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></symbol>
+        <symbol id="icon-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></symbol>
+    </svg>
+
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <a href="#" data-page="home" class="nav-link text-2xl font-bold text-blue-600">WorkHub</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#" data-page="find-work" class="nav-link text-gray-500 hover:text-blue-600">Find Work</a>
+                    <a href="#" data-page="find-talent" class="nav-link text-gray-500 hover:text-blue-600">Find Talent</a>
+                    <a href="#" data-page="post-job" class="nav-link text-gray-500 hover:text-blue-600">Post a Job</a>
+                    <a href="#" data-page="dashboard" class="nav-link text-gray-500 hover:text-blue-600">Dashboard</a>
+                    <a href="#" data-page="messages" class="nav-link text-gray-500 hover:text-blue-600">Messages</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="text-gray-500 hover:text-blue-600" onclick="openModal('login-modal')">Log In</button>
+                    <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 shadow" onclick="openModal('signup-modal')">Sign Up</button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Home Page -->
+        <div id="page-home" class="page active">
+            <section class="bg-white">
+                <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-4">Find Your Next Great Hire, Today.</h1>
+                    <p class="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto">The premier platform to connect with skilled freelance professionals from around the globe. Post a job and get proposals in minutes.</p>
+                    <div class="flex justify-center space-x-4">
+                        <a href="#" data-page="find-work" class="nav-link bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 shadow-md">Browse Jobs</a>
+                        <a href="#" data-page="post-job" class="nav-link bg-gray-200 text-gray-800 px-8 py-3 rounded-lg text-lg font-semibold hover:bg-gray-300">Post a Job</a>
+                    </div>
+                </div>
+            </section>
+            <!-- Other homepage sections like "How it works", "Featured Freelancers", etc. would go here -->
+        </div>
+
+        <!-- Find Work Page -->
+        <div id="page-find-work" class="page">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <h1 class="text-3xl font-bold mb-6">Browse Projects</h1>
+                <div class="bg-white p-4 rounded-lg shadow-md mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="text" placeholder="Search by keyword (e.g. 'React Developer')" class="col-span-1 md:col-span-2 p-2 border rounded-lg">
+                        <select class="p-2 border rounded-lg"><option>Category</option><option>Web Development</option><option>Graphic Design</option></select>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Search</button>
+                    </div>
+                </div>
+                <div id="job-listings" class="space-y-4"></div>
+            </div>
+        </div>
+
+        <!-- Find Talent Page -->
+        <div id="page-find-talent" class="page">
+             <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <h1 class="text-3xl font-bold mb-6">Find Top Talent</h1>
+                <div class="bg-white p-4 rounded-lg shadow-md mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <input type="text" placeholder="Search by skill (e.g. 'UI/UX Design')" class="col-span-1 md:col-span-2 p-2 border rounded-lg">
+                        <select class="p-2 border rounded-lg"><option>Hourly Rate</option><option>$</option><option>$$</option><option>$$$</option></select>
+                        <button class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Search</button>
+                    </div>
+                </div>
+                <div id="freelancer-listings" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+            </div>
+        </div>
+
+        <!-- Job Details Page -->
+        <div id="page-job-details" class="page">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8"></div>
+        </div>
+        
+        <!-- Post a Job Page -->
+        <div id="page-post-job" class="page">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-lg">
+                    <h1 class="text-3xl font-bold mb-6">Post a New Job</h1>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="job-title" class="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
+                            <input type="text" id="job-title" class="w-full p-3 border rounded-lg" placeholder="e.g., Senior Frontend Developer">
+                        </div>
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <label for="job-description" class="block text-sm font-medium text-gray-700">Job Description</label>
+                                <button id="generate-description-btn" onclick="generateJobDescription()" class="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800">
+                                    <span>✨</span>
+                                    <span class="font-semibold">Generate with AI</span>
+                                </button>
+                            </div>
+                            <textarea id="job-description" class="w-full p-3 border rounded-lg" rows="10" placeholder="Describe the project, required skills, and deliverables..."></textarea>
+                            <div id="description-loader" class="hidden items-center space-x-2 text-gray-500 mt-2">
+                                <div class="spinner"></div>
+                                <span>Generating description...</span>
+                            </div>
+                        </div>
+                        <button class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">Post Job</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Freelancer Profile Page -->
+        <div id="page-freelancer-profile" class="page">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8"></div>
+        </div>
+
+        <!-- Dashboard Page -->
+        <div id="page-dashboard" class="page">
+            <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <h1 class="text-3xl font-bold mb-6">My Dashboard</h1>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Left Sidebar -->
+                    <div class="lg:col-span-1 bg-white p-6 rounded-lg shadow-md">
+                        <div class="flex items-center space-x-4 mb-6">
+                            <img src="https://placehold.co/80x80/E0E7FF/4F46E5?text=AV" alt="User Avatar" class="w-20 h-20 rounded-full">
+                            <div>
+                                <h2 class="text-xl font-bold">Alex Morgan</h2>
+                                <p class="text-gray-500">UX/UI Designer</p>
+                            </div>
+                        </div>
+                        <h3 class="font-semibold mb-2">My Stats</h3>
+                        <div class="space-y-2 text-gray-600">
+                            <p><strong>Projects Completed:</strong> 12</p>
+                            <p><strong>Total Earnings:</strong> $15,400</p>
+                            <p><strong>Success Rate:</strong> 98%</p>
+                        </div>
+                    </div>
+                    <!-- Main Content -->
+                    <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-4">Active Projects</h2>
+                        <div class="space-y-4">
+                            <div class="border p-4 rounded-lg">
+                                <h3 class="font-bold text-lg">E-commerce Website Redesign</h3>
+                                <p class="text-sm text-gray-500 mb-2">Client: Tech Innovators Inc.</p>
+                                <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                    <div class="bg-green-500 h-2.5 rounded-full" style="width: 75%"></div>
+                                </div>
+                                <p class="text-right text-sm mt-1">75% Complete - Deadline: Oct 15, 2025</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Messages Page -->
+        <div id="page-messages" class="page">
+             <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 h-[calc(100vh-128px)]">
+                <div class="flex bg-white rounded-lg shadow-md h-full">
+                    <div class="w-1/3 border-r">
+                        <div class="p-4 border-b font-bold text-lg">Conversations</div>
+                        <ul class="overflow-y-auto">
+                           <li class="p-4 border-b hover:bg-gray-100 cursor-pointer flex items-center space-x-3">
+                                <img src="https://placehold.co/40x40/facc15/1f2937?text=JI" class="w-10 h-10 rounded-full">
+                                <div>
+                                    <p class="font-semibold">John Innovate</p>
+                                    <p class="text-sm text-gray-500 truncate">Sure, I'll get that file over to you...</p>
+                                </div>
+                           </li>
+                        </ul>
+                    </div>
+                    <div class="w-2/3 flex flex-col">
+                        <div class="p-4 border-b flex items-center space-x-3">
+                             <img src="https://placehold.co/40x40/facc15/1f2937?text=JI" class="w-10 h-10 rounded-full">
+                             <h2 class="font-bold text-lg">John Innovate</h2>
+                        </div>
+                        <div class="flex-grow p-4 space-y-4 overflow-y-auto">
+                            <div class="flex justify-end"><div class="bg-blue-500 text-white p-3 rounded-lg max-w-xs">Hey John! How's the project going?</div></div>
+                            <div class="flex justify-start"><div class="bg-gray-200 p-3 rounded-lg max-w-xs">It's going great! Just finishing up the last milestone.</div></div>
+                        </div>
+                        <div class="p-4 border-t">
+                            <input type="text" placeholder="Type your message..." class="w-full p-2 border rounded-lg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="login-modal" class="modal fixed inset-0 z-50 items-center justify-center hidden">
+        <div class="modal-backdrop fixed inset-0 bg-black opacity-50" onclick="closeModal('login-modal')"></div>
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md z-10">
+            <h2 class="text-2xl font-bold mb-6 text-center">Log In to WorkHub</h2>
+            <div class="space-y-2 mb-4">
+                 <button class="w-full flex items-center justify-center py-2 px-4 border rounded-lg hover:bg-gray-100">Continue with Google</button>
+                 <button class="w-full flex items-center justify-center py-2 px-4 border rounded-lg hover:bg-gray-100">Continue with GitHub</button>
+            </div>
+            <div class="text-center my-4 text-gray-500">OR</div>
+            <form>
+                <input type="email" placeholder="Email Address" class="w-full p-3 mb-4 border rounded-lg">
+                <input type="password" placeholder="Password" class="w-full p-3 mb-4 border rounded-lg">
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">Log In</button>
+            </form>
+        </div>
+    </div>
+    <div id="signup-modal" class="modal fixed inset-0 z-50 items-center justify-center hidden">
+        <div class="modal-backdrop fixed inset-0 bg-black opacity-50" onclick="closeModal('signup-modal')"></div>
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md z-10">
+            <h2 class="text-2xl font-bold mb-6 text-center">Join WorkHub</h2>
+            <form>
+                 <input type="text" placeholder="Full Name" class="w-full p-3 mb-4 border rounded-lg">
+                <input type="email" placeholder="Email Address" class="w-full p-3 mb-4 border rounded-lg">
+                <input type="password" placeholder="Password" class="w-full p-3 mb-4 border rounded-lg">
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700">Create Account</button>
+            </form>
+        </div>
+    </div>
+    
+    <footer class="bg-white border-t mt-12">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 text-center text-gray-500">
+            <p>&copy; 2025 WorkHub. All rights reserved.</p>
+        </div>
+    </footer>
+
+
+    <script>
+    // --- MOCK DATA ---
+    const mockJobs = [
+        { id: 1, title: 'Senior React Developer for E-commerce Platform', client: 'Shopify', budget: 8000, skills: ['React', 'Node.js', 'GraphQL'], posted: '2 hours ago', description: 'We are looking for an experienced React developer to help build out our new e-commerce platform. Must have experience with modern frontend technologies and state management, including state containers like Redux or Zustand. The ideal candidate will work closely with our design and product teams to deliver a high-quality user experience.' },
+        { id: 2, title: 'UI/UX Designer for Mobile App', client: 'Creative Labs', budget: 4500, skills: ['Figma', 'UI/UX', 'Mobile Design'], posted: '1 day ago', description: 'Seeking a talented UI/UX designer to create an intuitive and beautiful interface for our new productivity mobile app. You will be responsible for the entire design process, from user research and wireframing to high-fidelity mockups and prototyping. A strong portfolio is required.' },
+        { id: 3, title: 'Backend Python Developer (Django)', client: 'Data Corp', budget: 6000, skills: ['Python', 'Django', 'PostgreSQL'], posted: '3 days ago', description: 'Join our backend team to develop and maintain our data processing pipelines. Strong experience with Django, Django REST Framework, and relational databases is a must. You will be building scalable APIs and working with large datasets.' },
+    ];
+    
+    const mockFreelancers = [
+        { id: 1, name: 'Elena Rodriguez', title: 'Full Stack Developer', rate: 75, skills: ['React', 'Python', 'AWS', 'Node.js', 'Next.js'], rating: 4.9, location: 'Madrid, Spain', verified: true, avatar: 'https://placehold.co/80x80/c7d2fe/312e81?text=ER' },
+        { id: 2, name: 'Ben Carter', title: 'Graphic Designer', rate: 55, skills: ['Photoshop', 'Illustrator', 'Branding', 'Figma'], rating: 5.0, location: 'New York, USA', verified: true, avatar: 'https://placehold.co/80x80/bbf7d0/166534?text=BC' },
+        { id: 3, name: 'Aisha Khan', title: 'Content Writer & SEO Expert', rate: 40, skills: ['SEO', 'Copywriting', 'Content Strategy'], rating: 4.8, location: 'London, UK', verified: false, avatar: 'https://placehold.co/80x80/fbcfe8/831843?text=AK' },
+    ];
+    
+    // --- PAGE NAVIGATION ---
+    const pages = document.querySelectorAll('.page');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    function showPage(pageId) {
+        pages.forEach(page => page.classList.toggle('active', page.id === `page-${pageId}`));
+        navLinks.forEach(link => link.classList.toggle('active-nav', link.dataset.page === pageId));
+        window.scrollTo(0, 0);
+    }
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const pageId = e.target.closest('.nav-link').dataset.page;
+            showPage(pageId);
+        });
+    });
+    
+    // --- MODAL HANDLING ---
+    function openModal(modalId) { document.getElementById(modalId)?.classList.replace('hidden', 'flex'); }
+    function closeModal(modalId) { document.getElementById(modalId)?.classList.replace('flex', 'hidden'); }
+    
+    // --- GEMINI API INTEGRATION ---
+    const API_KEY = ""; // Leave as-is, handled by environment
+    const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
+    
+    async function callGeminiAPI(prompt, maxRetries = 3) {
+        let backoff = 1000; // Start with 1 second
+        for (let i = 0; i < maxRetries; i++) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+
+                const result = await response.json();
+                const text = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (text) {
+                    return text;
+                } else {
+                    throw new Error("No text found in API response.");
+                }
+            } catch (error) {
+                console.error(`Attempt ${i + 1} failed:`, error);
+                if (i === maxRetries - 1) {
+                    return "Sorry, the AI generator is currently unavailable. Please try again later.";
+                }
+                await new Promise(resolve => setTimeout(resolve, backoff));
+                backoff *= 2; // Exponential backoff
+            }
+        }
+    }
+
+    async function generateJobDescription() {
+        const jobTitle = document.getElementById('job-title').value;
+        if (!jobTitle) {
+            alert("Please enter a job title first.");
+            return;
+        }
+
+        const loader = document.getElementById('description-loader');
+        const button = document.getElementById('generate-description-btn');
+        const textarea = document.getElementById('job-description');
+
+        loader.classList.replace('hidden', 'flex');
+        button.disabled = true;
+        textarea.value = '';
+
+        const prompt = `You are a hiring manager creating a job post for a freelance marketplace. Write a clear, professional, and appealing job description for a "${jobTitle}".
+        Include the following sections with bullet points:
+        - **Responsibilities:** (What the freelancer will do)
+        - **Required Skills & Experience:** (Essential qualifications)
+        - **Preferred Qualifications:** (Nice-to-haves)
+        
+        Keep the tone encouraging and professional.`;
+
+        const generatedDescription = await callGeminiAPI(prompt);
+        textarea.value = generatedDescription;
+        loader.classList.replace('flex', 'hidden');
+        button.disabled = false;
+    }
+
+    async function generateProposal(jobId) {
+        const job = mockJobs.find(j => j.id === jobId);
+        if (!job) return;
+        
+        const loader = document.getElementById('proposal-loader');
+        const button = document.getElementById('generate-proposal-btn');
+        const textarea = document.getElementById('proposal-text');
+
+        loader.classList.replace('hidden', 'flex');
+        button.disabled = true;
+        textarea.value = '';
+
+        // In a real app, this would be the logged-in user's data.
+        const mockFreelancer = mockFreelancers[0]; 
+
+        const prompt = `You are a professional freelancer named ${mockFreelancer.name} applying for a job on a freelance platform. Your skills are: ${mockFreelancer.skills.join(', ')}.
+        
+        Write a concise, confident, and professional proposal for the following job. Start with a greeting, briefly introduce yourself, explain why you are a great fit by connecting your skills to the job requirements, and end with a call to action.
+        
+        **Job Title:** ${job.title}
+        **Job Description:** ${job.description}`;
+        
+        const generatedProposal = await callGeminiAPI(prompt);
+        textarea.value = generatedProposal;
+        loader.classList.replace('flex', 'hidden');
+        button.disabled = false;
+    }
+    
+    // --- DYNAMIC CONTENT RENDERING ---
+    function renderJobListings() {
+        const container = document.getElementById('job-listings');
+        if (container) container.innerHTML = mockJobs.map(job => `
+            <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer" onclick="showJobDetails(${job.id})">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h2 class="text-xl font-bold text-blue-600">${job.title}</h2>
+                        <p class="text-gray-600">Posted by ${job.client}</p>
+                    </div>
+                    <span class="text-lg font-semibold">$${job.budget}</span>
+                </div>
+                <p class="mt-2 text-gray-700">${job.description.substring(0, 150)}...</p>
+                <div class="mt-4 flex items-center justify-between">
+                    <div class="flex space-x-2">${job.skills.map(skill => `<span class="bg-gray-200 text-gray-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${skill}</span>`).join('')}</div>
+                    <span class="text-sm text-gray-500">${job.posted}</span>
+                </div>
+            </div>`).join('');
+    }
+    
+    function renderFreelancerListings() {
+        const container = document.getElementById('freelancer-listings');
+        if(container) container.innerHTML = mockFreelancers.map(freelancer => `
+            <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition-shadow cursor-pointer" onclick="showFreelancerProfile(${freelancer.id})">
+                <img src="${freelancer.avatar}" alt="${freelancer.name}" class="w-24 h-24 rounded-full mx-auto mb-4">
+                <h3 class="text-xl font-bold flex items-center justify-center">${freelancer.name} ${freelancer.verified ? '<svg class="w-5 h-5 ml-2 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zM12 12a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>' : ''}</h3>
+                <p class="text-gray-500">${freelancer.title}</p>
+                <div class="flex justify-center items-center my-3"><div class="flex text-yellow-400">${[...Array(5)].map(() => `<svg class="w-5 h-5"><use href="#icon-star"></use></svg>`).join('')}</div><span class="ml-2 font-semibold">${freelancer.rating}</span></div>
+                <div class="mt-4 flex flex-wrap justify-center gap-2">${freelancer.skills.map(skill => `<span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">${skill}</span>`).join('')}</div>
+            </div>`).join('');
+    }
+
+    function showJobDetails(jobId) {
+        const job = mockJobs.find(j => j.id === jobId);
+        if (!job) return;
+        
+        const container = document.querySelector('#page-job-details > div');
+        container.innerHTML = `
+            <div class="bg-white p-8 rounded-lg shadow-lg">
+                <h1 class="text-3xl font-bold mb-2">${job.title}</h1>
+                <p class="text-gray-600 mb-6">Posted by ${job.client}</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div><span class="font-semibold">Budget:</span> $${job.budget}</div>
+                    <div><span class="font-semibold">Posted:</span> ${job.posted}</div>
+                </div>
+                <h2 class="text-2xl font-semibold mb-3">Job Description</h2>
+                <p class="text-gray-700 mb-6 whitespace-pre-wrap">${job.description}</p>
+                 <h3 class="text-xl font-semibold mb-3">Required Skills</h3>
+                <div class="flex flex-wrap gap-2 mb-8">${job.skills.map(skill => `<span class="bg-gray-200 text-gray-800 text-sm font-medium px-3 py-1 rounded-full">${skill}</span>`).join('')}</div>
+                
+                <div class="border-t pt-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-semibold">Submit a Proposal</h2>
+                        <button id="generate-proposal-btn" onclick="generateProposal(${job.id})" class="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-800">
+                            <span>✨</span>
+                            <span class="font-semibold">Generate with AI</span>
+                        </button>
+                    </div>
+                    <textarea id="proposal-text" class="w-full p-3 border rounded-lg mb-4" rows="8" placeholder="Write your proposal here..."></textarea>
+                    <div id="proposal-loader" class="hidden items-center space-x-2 text-gray-500 mb-4">
+                        <div class="spinner"></div>
+                        <span>Generating proposal...</span>
+                    </div>
+                    <button class="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700">Send Proposal</button>
+                </div>
+            </div>`;
+        showPage('job-details');
+    }
+
+    function showFreelancerProfile(freelancerId) {
+        const freelancer = mockFreelancers.find(f => f.id === freelancerId);
+        if (!freelancer) return;
+
+        const container = document.querySelector('#page-freelancer-profile > div');
+        container.innerHTML = `
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-1"><div class="bg-white p-6 rounded-lg shadow-md text-center"><img src="${freelancer.avatar}" class="w-32 h-32 rounded-full mx-auto mb-4"><h2 class="text-2xl font-bold">${freelancer.name}</h2><p class="text-gray-600 mb-4">${freelancer.title}</p><button class="w-full bg-blue-600 text-white py-2 rounded-lg font-semibold hover:bg-blue-700">Contact</button></div></div>
+                <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md">
+                     <h3 class="text-xl font-bold mb-4">About</h3><p class="text-gray-700 mb-6">Highly skilled and motivated developer with 5+ years of experience in creating dynamic web applications. Passionate about clean code and great user experiences.</p>
+                     <h3 class="text-xl font-bold mb-4">Skills</h3><div class="flex flex-wrap gap-2 mb-6">${freelancer.skills.map(skill => `<span class="bg-gray-200 text-gray-800 text-sm font-medium px-3 py-1 rounded-full">${skill}</span>`).join('')}</div>
+                     <h3 class="text-xl font-bold mb-4">Client Reviews (3)</h3>
+                     <div class="border-t pt-4"><div class="flex items-center mb-1"><span class="font-semibold">Creative Labs</span><div class="flex text-yellow-400 ml-auto"><svg class="w-4 h-4"><use href="#icon-star"></use></svg><svg class="w-4 h-4"><use href="#icon-star"></use></svg><svg class="w-4 h-4"><use href="#icon-star"></use></svg><svg class="w-4 h-4"><use href="#icon-star"></use></svg><svg class="w-4 h-4"><use href="#icon-star"></use></svg></div></div><p class="text-gray-600 italic">"An absolute pleasure to work with. Delivered high-quality work ahead of schedule."</p></div>
+                </div>
+            </div>`;
+        showPage('freelancer-profile');
+    }
+
+    // --- INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+        renderJobListings();
+        renderFreelancerListings();
+        showPage('home');
+    });
+    </script>
+</body>
+</html>
+
